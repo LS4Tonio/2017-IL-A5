@@ -6,13 +6,10 @@ namespace Algo
 {
     public partial class User
     {
-        internal static string[] CellSeparator = new string[] { "::" };
+        internal static string[] CellSeparator = { "::" };
 
-        private UInt16 _userId;
-        private byte _age;
-        private bool _male;
-        private string _occupation;
-        private string _zipCode;
+        private ushort _userId;
+        private readonly byte _age;
 
         /// <summary>
         /// User information is in the file "users.dat" and is in the following
@@ -24,10 +21,10 @@ namespace Algo
         {
             string[] cells = line.Split(CellSeparator, StringSplitOptions.None);
             _userId = UInt16.Parse(cells[0]);
-            _male = cells[1] == "M";
+            Male = cells[1] == "M";
             _age = Byte.Parse(cells[2]);
-            _occupation = String.Intern(cells[3]);
-            _zipCode = String.Intern(cells[4]);
+            Occupation = String.Intern(cells[3]);
+            ZipCode = String.Intern(cells[4]);
             Ratings = new Dictionary<Movie, int>();
         }
 
@@ -61,16 +58,16 @@ namespace Algo
             }
         }
 
-        public int UserID { get { return (int)_userId; } set { _userId = (UInt16)value; } }
+        public int UserID { get { return _userId; } set { _userId = (ushort)value; } }
 
-        public bool Male { get { return _male; } }
+        public bool Male { get; }
 
-        public int Age { get { return (int)_age; } }
+        public int Age { get { return _age; } }
 
-        public string Occupation { get { return _occupation; } }
+        public string Occupation { get; }
 
-        public string ZipCode { get { return _zipCode; } }
+        public string ZipCode { get; }
 
-        public Dictionary<Movie, int> Ratings { get; private set; }
+        public Dictionary<Movie, int> Ratings { get; }
     }
 }

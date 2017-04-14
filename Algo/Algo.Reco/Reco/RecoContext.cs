@@ -124,6 +124,83 @@ namespace Algo
                 yield return new KeyValuePair<int, int>(values[i], values[++i]);
             }
         }
+
+        #region Recommandations
+
+        public IEnumerable<UserDistance> GetClosestUsers(User userRef)
+        {
+            var list = new List<UserDistance>();
+
+            foreach (var user in Users)
+            {
+                if (user.UserID == userRef.UserID) continue;
+                list.Add(new UserDistance
+                {
+                    Distance = SimilarityPearson(userRef, user),
+                    User = user
+                });
+            }
+
+            return list.OrderByDescending(x => Math.Abs(x.Distance));
+        }
+
+        public IEnumerable<Movie> GetUnseenMovies(User u, IEnumerable<User> users)
+        {
+            var list = new List<Movie>();
+
+            foreach (var user in users)
+            {
+                list.AddRange(user.Ratings.Keys.Where(k => k != null)
+                    .Except(u.Ratings.Keys.Where(k => k != null))
+                    .Except(list));
+            }
+
+            return list;
+        }
+
+        public IEnumerable<MovieWeight> GetBestMovies(User u, int max)
+        {
+            var closestUsers = GetClosestUsers(u);
+            var movies = GetUnseenMovies(u, closestUsers.Select(x => x.User));
+
+            var list = new List<MovieWeight>();
+            foreach (var movie in movies)
+            {
+                var notes = new List<double>();
+                foreach (var user in closestUsers)
+                {
+                    if (!user.User.Ratings.ContainsKey(movie))
+                        continue;
+
+                    // Note * similarité
+                    notes.Add(user.User.Ratings[movie] * user.Distance);
+                }
+
+                var mw = new MovieWeight
+                {
+                    Movie = movie,
+                    Weight = notes.Average()
+                };
+                list.Add(mw);
+            }
+
+            var listOrdered = list.OrderByDescending(x => x.Weight);
+            return listOrdered.Take(max);
+        }
+
+        public struct UserDistance
+        {
+            public double Distance;
+            public User User;
+        }
+
+        public struct MovieWeight
+        {
+            public Movie Movie;
+            public double Weight;
+        }
+
+        #endregion Recommandations
     }
 
     public static class DictionaryExtension

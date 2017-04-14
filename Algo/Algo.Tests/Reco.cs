@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
 using System.IO;
+using NUnit.Framework;
 
 namespace Algo.Tests
 {
@@ -109,6 +108,51 @@ namespace Algo.Tests
                 Assert.That(c.Users[i].UserID, Is.EqualTo(i + 1));
             for (int i = 0; i < c.Movies.Length; ++i)
                 Assert.That(c.Movies[i].MovieID, Is.EqualTo(i + 1));
+        }
+
+        [Test]
+        public void ClosestUsers()
+        {
+            RecoContext c = new RecoContext();
+            c.LoadFrom(_goodDataPath);
+
+            var user = c.Users.First(x => x.Ratings.Any());
+            Assert.That(user.Ratings.Count, Is.GreaterThan(0), "Nb Ratings");
+            Console.WriteLine($"Selected ref user: {user.UserID} | Nb: {user.Ratings.Count}");
+
+            var u = c.GetClosestUsers(user);
+            Assert.That(u.Count(), Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void BestUnseenMovies()
+        {
+            RecoContext c = new RecoContext();
+            c.LoadFrom(_goodDataPath);
+            var user = c.Users.First(x => x.Ratings.Any());
+            var movies = c.GetBestMovies(user, 10);
+
+            Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
+
+            foreach (var mw in movies)
+            {
+                Console.WriteLine($"Movie: {mw.Movie.Title} | Weight: {mw.Weight}");
+            }
+        }
+
+        [Test]
+        public void BestUnseenMoviesAnotherUser()
+        {
+            RecoContext c = new RecoContext();
+            c.LoadFrom(_goodDataPath);
+            var movies = c.GetBestMovies(c.Users[17], 10);
+
+            Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
+
+            foreach (var mw in movies)
+            {
+                Console.WriteLine($"Movie: {mw.Movie.Title} | Weight: {mw.Weight}");
+            }
         }
     }
 }
