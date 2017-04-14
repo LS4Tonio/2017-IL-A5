@@ -124,13 +124,14 @@ namespace Algo.Tests
             Assert.That(u.Count(), Is.GreaterThan(0));
         }
 
-        [Test]
-        public void BestUnseenMovies()
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(3712)]
+        public void BestUnseenMovies(int index)
         {
             RecoContext c = new RecoContext();
             c.LoadFrom(_goodDataPath);
-            var user = c.Users.First(x => x.Ratings.Any());
-            var movies = c.GetBestMovies(user, 10);
+            var movies = c.GetBestMovies(c.Users[index], 10);
 
             Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
 
@@ -140,28 +141,14 @@ namespace Algo.Tests
             }
         }
 
-        [Test]
-        public void BestUnseenMoviesAnotherUser()
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(3712)]
+        public void BestUnseenOptimized(int index)
         {
             RecoContext c = new RecoContext();
             c.LoadFrom(_goodDataPath);
-            var movies = c.GetBestMovies(c.Users[17], 10);
-
-            Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
-
-            foreach (var mw in movies)
-            {
-                Console.WriteLine($"Movie: {mw.Movie.Title} | Weight: {mw.Weight}");
-            }
-        }
-
-        [Test]
-        public void BestUnseenOptimized()
-        {
-            RecoContext c = new RecoContext();
-            c.LoadFrom(_goodDataPath);
-            var user = c.Users.First(x => x.Ratings.Any());
-            var movies = c.GetBestMoviesOptimized(user, 10);
+            var movies = c.GetBestMoviesOptimized(c.Users[index], 10);
 
             Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
 

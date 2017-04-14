@@ -192,6 +192,9 @@ namespace Algo
         {
             if (user == null || max < 0) throw new ArgumentException();
 
+            if (!user.Ratings.Any())
+                return new List<MovieWeight>();
+
             var userDistance = new List<UserDistance>();
             var moviesUnseen = new List<Movie>();
             foreach (var userInDb in Users)
@@ -223,13 +226,13 @@ namespace Algo
                         continue;
 
                     // Note * similarité
-                    notes.Add(ud.User.Ratings[movie] * ud.Similarity);
+                    notes.Add((ud.User.Ratings[movie] - 3) * ud.Similarity);
                 }
 
                 var mw = new MovieWeight
                 {
                     Movie = movie,
-                    Weight = notes.Average()
+                    Weight = notes.Average() + 3
                 };
                 bestMovies.Add(mw);
             }
