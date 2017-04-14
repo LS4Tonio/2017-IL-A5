@@ -116,8 +116,8 @@ namespace Algo.Tests
             RecoContext c = new RecoContext();
             c.LoadFrom(_goodDataPath);
             var user = c.Users.First(x => x.Ratings.Any());
-            var movies = c.GetBestMoviesOptimized(c.Users[3712], 10);
-
+            var movies = c.GetBestMoviesOptimized(c.Users[3712], 10, 300);
+            
             Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
 
             foreach (var mw in movies)
