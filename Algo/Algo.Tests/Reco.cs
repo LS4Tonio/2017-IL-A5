@@ -154,5 +154,21 @@ namespace Algo.Tests
                 Console.WriteLine($"Movie: {mw.Movie.Title} | Weight: {mw.Weight}");
             }
         }
+
+        [Test]
+        public void BestUnseenOptimized()
+        {
+            RecoContext c = new RecoContext();
+            c.LoadFrom(_goodDataPath);
+            var user = c.Users.First(x => x.Ratings.Any());
+            var movies = c.GetBestMoviesOptimized(user, 10);
+
+            Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
+
+            foreach (var mw in movies)
+            {
+                Console.WriteLine($"Movie: {mw.Movie.Title} | Weight: {mw.Weight}");
+            }
+        }
     }
 }

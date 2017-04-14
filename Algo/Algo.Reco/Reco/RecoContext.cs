@@ -136,12 +136,12 @@ namespace Algo
                 if (user.UserID == userRef.UserID) continue;
                 list.Add(new UserDistance
                 {
-                    Distance = SimilarityPearson(userRef, user),
+                    Similarity = SimilarityPearson(userRef, user),
                     User = user
                 });
             }
 
-            return list.OrderByDescending(x => Math.Abs(x.Distance));
+            return list.OrderByDescending(x => Math.Abs(x.Similarity));
         }
 
         public IEnumerable<Movie> GetUnseenMovies(User u, IEnumerable<User> users)
@@ -173,7 +173,7 @@ namespace Algo
                         continue;
 
                     // Note * similarité
-                    notes.Add(user.User.Ratings[movie] * user.Distance);
+                    notes.Add(user.User.Ratings[movie] * user.Similarity);
                 }
 
                 var mw = new MovieWeight
@@ -188,9 +188,58 @@ namespace Algo
             return listOrdered.Take(max);
         }
 
+        public IEnumerable<MovieWeight> GetBestMoviesOptimized(User user, int max)
+        {
+            if (user == null || max < 0) throw new ArgumentException();
+
+            var userDistance = new List<UserDistance>();
+            var moviesUnseen = new List<Movie>();
+            foreach (var userInDb in Users)
+            {
+                // Do not take the same user :p
+                if (user.UserID == userInDb.UserID) continue;
+
+                // Calc similarity
+                var similarity = SimilarityPearson(user, userInDb);
+
+                // store closest user
+                userDistance.Add(new UserDistance { Similarity = similarity, User = userInDb });
+
+                // Get movies not seen by user
+                moviesUnseen.AddRange(
+                    userInDb.Ratings.Keys.Where(k => k != null)
+                        .Except(user.Ratings.Keys.Where(k => k != null))
+                        .Except(moviesUnseen));
+            }
+
+            // Calculate movies weight
+            var bestMovies = new List<MovieWeight>();
+            foreach (var movie in moviesUnseen)
+            {
+                var notes = new List<double>();
+                foreach (var ud in userDistance)
+                {
+                    if (!ud.User.Ratings.ContainsKey(movie))
+                        continue;
+
+                    // Note * similarité
+                    notes.Add(ud.User.Ratings[movie] * ud.Similarity);
+                }
+
+                var mw = new MovieWeight
+                {
+                    Movie = movie,
+                    Weight = notes.Average()
+                };
+                bestMovies.Add(mw);
+            }
+
+            return bestMovies.OrderByDescending(x => x.Weight).Take(max);
+        }
+
         public struct UserDistance
         {
-            public double Distance;
+            public double Similarity;
             public User User;
         }
 
