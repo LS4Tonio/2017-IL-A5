@@ -9,8 +9,8 @@ namespace Algo.Tests
     [TestFixture]
     public class Reco
     {
-        private static string _badDataPath = @"C:\_iti\2017-IL-A5-Antoine\Algo\ThirdParty\MovieData\MovieLens";
-        private static string _goodDataPath = @"C:\_iti\2017-IL-A5-Antoine\Algo\ThirdParty\MovieData";
+        private static string _badDataPath = @"D:\LS4Tonio\IN'TECH_INFO\Algorithmie\2017-IL-A5\Algo\ThirdParty\MovieData\MovieLens";
+        private static string _goodDataPath = @"D:\LS4Tonio\IN'TECH_INFO\Algorithmie\2017-IL-A5\Algo\ThirdParty\MovieData";
 
         [Test]
         public void CorrectData()
@@ -109,17 +109,16 @@ namespace Algo.Tests
             for (int i = 0; i < c.Movies.Length; ++i)
                 Assert.That(c.Movies[i].MovieID, Is.EqualTo(i + 1));
         }
-        
-        [Test]
+
         [TestCase(1)]
         [TestCase(3712)]
-        public void BestUnseenOptimized(int index)
+        public void BestUnseenMoviesOptimized(int index)
         {
             RecoContext c = new RecoContext();
             c.LoadFrom(_goodDataPath);
-            var movies = c.GetBestMoviesOptimized(c.Users[index], 10);
-            var movies = c.GetBestMoviesOptimized(c.Users[3712], 10, 300);
-            
+
+            var movies = c.GetBestMoviesOptimized(c.Users[index], 10, 300);
+
             Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
 
             foreach (var mw in movies)
