@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
+using System.Collections;
 
 namespace Algo
 {
@@ -38,26 +39,9 @@ namespace Algo
 
         public double SimilarityPearson(User u1, User u2)
         {
-            // Impl. 1
-            var ratings = u1.Ratings.Keys
-                .Intersect(u2.Ratings.Keys)
-                .Select(m => new KeyValuePair<int, int>(u1.Ratings[m], u2.Ratings[m]));
+            var ratings = u1.Ratings.Keys.Intersect(u2.Ratings.Keys)
+               .Select(m => new KeyValuePair<int, int>(u1.Ratings[m], u2.Ratings[m]));
 
-            // Impl 2
-            //var ratings = u1.Ratings
-            //    .Where(x => u2.Ratings.ContainsKey(x.Key))
-            //    .Select(x => new KeyValuePair<int, int>(x.Value, u2.Ratings[x.Key]));
-
-            // Impl 3
-            //var ratings = new List<KeyValuePair<int, int>>();
-            //foreach (var rating in u1.Ratings)
-            //{
-            //    if (!u2.Ratings.ContainsKey(rating.Key))
-            //        continue;
-            //    ratings.Add(new KeyValuePair<int, int>(rating.Value, u2.Ratings[rating.Key]));
-            //}
-
-            // Calculate
             return SimilarityPearson(ratings);
         }
 
@@ -74,45 +58,37 @@ namespace Algo
 
         public double SimilarityPearson(IEnumerable<KeyValuePair<int, int>> values)
         {
-            var count = 0;
-            double sumU1 = 0;
-            double sumU2 = 0;
-            double squareSumU1 = 0;
-            double squareSumU2 = 0;
-            double sumProd = 0;
+            double sumX = 0.0;
+            double sumY = 0.0;
+            double sumXY = 0.0;
+            double sumX2 = 0.0;
+            double sumY2 = 0.0;
 
-            foreach (var v in values)
+            int count = 0;
+            foreach (var m in values)
             {
-                ++count;
-                var r1 = v.Key;
-                var r2 = v.Value;
-
-                // Sum rating
-                sumU1 += r1;
-                sumU2 += r2;
-
-                // Sum square
-                squareSumU1 += r1 * r1;
-                squareSumU2 += r2 * r2;
-
-                // Sum product
-                sumProd += r1 * r2;
+                count++;
+                int x = m.Key;
+                int y = m.Value;
+                sumX += x;
+                sumY += y;
+                sumXY += x * y;
+                sumX2 += x * x;
+                sumY2 += y * y;
             }
-
-            if (count == 0) return 0;
+            if (count == 0) return 0.0;
             if (count == 1)
             {
-                var single = values.Single();
-                var d = Math.Abs(single.Key - single.Value);
+                var onlyOne = values.Single();
+                double d = Math.Abs(onlyOne.Key - onlyOne.Value);
                 return 1 / (1 + d);
             }
-
-            // Calc similarity
             checked
             {
-                var numerator = sumProd - (sumU1 * sumU2 / count);
-                var denominator = Math.Sqrt((squareSumU1 - Math.Pow(sumU1, 2) / count) * (squareSumU2 - Math.Pow(sumU2, 2) / count));
-                return numerator / denominator;
+                double numerator = sumXY - (sumX * sumY / count);
+                double denumerator1 = sumX2 - (sumX * sumX / count);
+                double denumerator2 = sumY2 - (sumY * sumY / count);
+                return numerator / Math.Sqrt(denumerator1 * denumerator2);
             }
         }
 
@@ -127,76 +103,32 @@ namespace Algo
 
         #region Recommandations
 
-        public IEnumerable<UserDistance> GetClosestUsers(User userRef)
+        public IEnumerable<MovieWeight> GetBestMoviesOptimized(User user, int maxMovies, int maxUsers)
         {
-            var list = new List<UserDistance>();
+            if (user == null || maxMovies < 0 || maxUsers <= 0) throw new ArgumentException();
 
-            foreach (var user in Users)
-            {
-                if (user.UserID == userRef.UserID) continue;
-                list.Add(new UserDistance
-                {
-                    Similarity = SimilarityPearson(userRef, user),
-                    User = user
-                });
-            }
-
-            return list.OrderByDescending(x => Math.Abs(x.Similarity));
-        }
-
-        public IEnumerable<Movie> GetUnseenMovies(User u, IEnumerable<User> users)
-        {
-            var list = new List<Movie>();
-
-            foreach (var user in users)
-            {
-                list.AddRange(user.Ratings.Keys.Where(k => k != null)
-                    .Except(u.Ratings.Keys.Where(k => k != null))
-                    .Except(list));
-            }
-
-            return list;
-        }
-
-        public IEnumerable<MovieWeight> GetBestMovies(User u, int max)
-        {
-            var closestUsers = GetClosestUsers(u);
-            var movies = GetUnseenMovies(u, closestUsers.Select(x => x.User));
-
-            var list = new List<MovieWeight>();
-            foreach (var movie in movies)
-            {
-                var notes = new List<double>();
-                foreach (var user in closestUsers)
-                {
-                    if (!user.User.Ratings.ContainsKey(movie))
-                        continue;
-
-                    // Note * similarité
-                    notes.Add(user.User.Ratings[movie] * user.Similarity);
-                }
-
-                var mw = new MovieWeight
-                {
-                    Movie = movie,
-                    Weight = notes.Average()
-                };
-                list.Add(mw);
-            }
-
-            var listOrdered = list.OrderByDescending(x => x.Weight);
-            return listOrdered.Take(max);
-        }
-
-        public IEnumerable<MovieWeight> GetBestMoviesOptimized(User user, int max)
-        {
-            if (user == null || max < 0) throw new ArgumentException();
+            // Top et flop des users similaires
+            var keeperUsers = new BestKeeper<UserDistance>(maxUsers,
+                Comparer<UserDistance>.Create(
+                    (a, b) =>
+                    {
+                        if (Math.Abs(a.Similarity) > Math.Abs(b.Similarity))
+                        {
+                            return 1;
+                        }
+                        else if (Math.Abs(a.Similarity) < Math.Abs(b.Similarity))
+                        {
+                            return -1;
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+                    }));
 
             if (!user.Ratings.Any())
                 return new List<MovieWeight>();
 
-            var userDistance = new List<UserDistance>();
-            var moviesUnseen = new List<Movie>();
             foreach (var userInDb in Users)
             {
                 // Do not take the same user :p
@@ -206,25 +138,55 @@ namespace Algo
                 var similarity = SimilarityPearson(user, userInDb);
 
                 // store closest user
-                userDistance.Add(new UserDistance { Similarity = similarity, User = userInDb });
-
-                // Get movies not seen by user
-                moviesUnseen.AddRange(
-                    userInDb.Ratings.Keys.Where(k => k != null)
-                        .Except(user.Ratings.Keys.Where(k => k != null))
-                        .Except(moviesUnseen));
+                // if user is add on keeper users
+                keeperUsers.Add(new UserDistance { Similarity = similarity, User = userInDb });
             }
 
+            // get movies 
+            var moviesUnseen = new List<Movie>();
+            foreach (var ud in keeperUsers.GetBestKeeper())
+            {
+                // Get movies not seen by user
+                moviesUnseen.AddRange(
+                ud.User.Ratings.Keys.Where(k => k != null)
+                    .Except(user.Ratings.Keys.Where(k => k != null))
+                    .Except(moviesUnseen));
+            }
+
+
             // Calculate movies weight
-            var bestMovies = new List<MovieWeight>();
+            var bestKeeperMovies = new BestKeeper<MovieWeight>(maxMovies,
+            Comparer<MovieWeight>.Create(
+                (a, b) =>
+                {
+                    if ( Double.IsNaN(a.Weight) || Double.IsNaN(b.Weight))
+                    {
+                        return -1;
+                    }
+
+                    if (a.Weight > b.Weight)
+                    {
+                        return 1;
+                    }
+                    else if (a.Weight < b.Weight)
+                    {
+                        return -1;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }));
+
             foreach (var movie in moviesUnseen)
             {
                 var notes = new List<double>();
-                foreach (var ud in userDistance)
+
+                foreach (var ud in keeperUsers.GetBestKeeper())
                 {
                     if (!ud.User.Ratings.ContainsKey(movie))
                         continue;
-
+                    
                     // Note * similarité
                     notes.Add((ud.User.Ratings[movie] - 3) * ud.Similarity);
                 }
@@ -234,10 +196,10 @@ namespace Algo
                     Movie = movie,
                     Weight = notes.Average() + 3
                 };
-                bestMovies.Add(mw);
+                bestKeeperMovies.Add(mw);
             }
 
-            return bestMovies.OrderByDescending(x => x.Weight).Take(max);
+            return bestKeeperMovies.GetBestKeeper();
         }
 
         public struct UserDistance
@@ -250,9 +212,71 @@ namespace Algo
         {
             public Movie Movie;
             public double Weight;
+
+        }
+        #endregion Recommandations
+    }
+
+
+
+
+    public class BestKeeper<T>
+    {
+        List<T> _bestKeeper;
+        IComparer<T> _comparer;
+        int _length;
+
+        public List<T> GetBestKeeper()
+        {
+            return _bestKeeper;
         }
 
-        #endregion Recommandations
+        public BestKeeper(int length, IComparer<T> comparer)
+        {
+            _bestKeeper = new List<T>();
+            _comparer = comparer;
+            _length = length;
+        }
+
+        // Add an element if necessary
+        public void Add(T value)
+        {
+            var index = findIndex(value);
+            if (index >= 0)
+            {
+                _bestKeeper.Insert(index, value);
+                if (_bestKeeper.Count > _length)
+                {
+                    _bestKeeper.RemoveAt(_length - 1);
+                }
+            }
+            else if (_bestKeeper.Count < _length)
+            {
+                _bestKeeper.Add(value);
+            }
+        }
+
+        private int findIndex(T value)
+        {
+            // return _bestKeeper.BinarySearch(value, _comparer);
+            foreach (var element in _bestKeeper)
+            {
+                if (_comparer.Compare(value, element) >= 0)
+                {
+                    return _bestKeeper.IndexOf(element);
+                }
+            }
+            return -1;
+        }
+    }
+
+    public static class ListExtension
+    {
+        public static void AddInBestKeeper<T>(this List<T> @this, T value, BestKeeper<T> bestKeeper)
+        {
+            bestKeeper.Add(value);
+            @this.Add(value);
+        }
     }
 
     public static class DictionaryExtension
