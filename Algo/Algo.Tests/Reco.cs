@@ -9,8 +9,8 @@ namespace Algo.Tests
     [TestFixture]
     public class Reco
     {
-        private static string _badDataPath = @"D:\LS4Tonio\IN'TECH_INFO\Algorithmie\2017-IL-A5\Algo\ThirdParty\MovieData\MovieLens";
-        private static string _goodDataPath = @"D:\LS4Tonio\IN'TECH_INFO\Algorithmie\2017-IL-A5\Algo\ThirdParty\MovieData";
+        private static string _badDataPath = @"C:\_iti\2017-IL-A5-Antoine\Algo\ThirdParty\MovieData\MovieLens";
+        private static string _goodDataPath = @"C:\_iti\2017-IL-A5-Antoine\Algo\ThirdParty\MovieData";
 
         [Test]
         public void CorrectData()
@@ -109,59 +109,14 @@ namespace Algo.Tests
             for (int i = 0; i < c.Movies.Length; ++i)
                 Assert.That(c.Movies[i].MovieID, Is.EqualTo(i + 1));
         }
-
-        [Test]
-        public void ClosestUsers()
-        {
-            RecoContext c = new RecoContext();
-            c.LoadFrom(_goodDataPath);
-
-            var user = c.Users.First(x => x.Ratings.Any());
-            Assert.That(user.Ratings.Count, Is.GreaterThan(0), "Nb Ratings");
-            Console.WriteLine($"Selected ref user: {user.UserID} | Nb: {user.Ratings.Count}");
-
-            var u = c.GetClosestUsers(user);
-            Assert.That(u.Count(), Is.GreaterThan(0));
-        }
-
-        [Test]
-        public void BestUnseenMovies()
-        {
-            RecoContext c = new RecoContext();
-            c.LoadFrom(_goodDataPath);
-            var user = c.Users.First(x => x.Ratings.Any());
-            var movies = c.GetBestMovies(user, 10);
-
-            Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
-
-            foreach (var mw in movies)
-            {
-                Console.WriteLine($"Movie: {mw.Movie.Title} | Weight: {mw.Weight}");
-            }
-        }
-
-        [Test]
-        public void BestUnseenMoviesAnotherUser()
-        {
-            RecoContext c = new RecoContext();
-            c.LoadFrom(_goodDataPath);
-            var movies = c.GetBestMovies(c.Users[17], 10);
-
-            Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
-
-            foreach (var mw in movies)
-            {
-                Console.WriteLine($"Movie: {mw.Movie.Title} | Weight: {mw.Weight}");
-            }
-        }
-
+        
         [Test]
         public void BestUnseenOptimized()
         {
             RecoContext c = new RecoContext();
             c.LoadFrom(_goodDataPath);
             var user = c.Users.First(x => x.Ratings.Any());
-            var movies = c.GetBestMoviesOptimized(user, 10);
+            var movies = c.GetBestMoviesOptimized(c.Users[3712], 10);
 
             Assert.That(movies.Count(), Is.LessThanOrEqualTo(10));
 

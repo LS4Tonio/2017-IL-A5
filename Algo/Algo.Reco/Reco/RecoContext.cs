@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
+using System.Collections;
 
 namespace Algo
 {
@@ -127,67 +128,6 @@ namespace Algo
 
         #region Recommandations
 
-        public IEnumerable<UserDistance> GetClosestUsers(User userRef)
-        {
-            var list = new List<UserDistance>();
-
-            foreach (var user in Users)
-            {
-                if (user.UserID == userRef.UserID) continue;
-                list.Add(new UserDistance
-                {
-                    Similarity = SimilarityPearson(userRef, user),
-                    User = user
-                });
-            }
-
-            return list.OrderByDescending(x => Math.Abs(x.Similarity));
-        }
-
-        public IEnumerable<Movie> GetUnseenMovies(User u, IEnumerable<User> users)
-        {
-            var list = new List<Movie>();
-
-            foreach (var user in users)
-            {
-                list.AddRange(user.Ratings.Keys.Where(k => k != null)
-                    .Except(u.Ratings.Keys.Where(k => k != null))
-                    .Except(list));
-            }
-
-            return list;
-        }
-
-        public IEnumerable<MovieWeight> GetBestMovies(User u, int max)
-        {
-            var closestUsers = GetClosestUsers(u);
-            var movies = GetUnseenMovies(u, closestUsers.Select(x => x.User));
-
-            var list = new List<MovieWeight>();
-            foreach (var movie in movies)
-            {
-                var notes = new List<double>();
-                foreach (var user in closestUsers)
-                {
-                    if (!user.User.Ratings.ContainsKey(movie))
-                        continue;
-
-                    // Note * similarité
-                    notes.Add(user.User.Ratings[movie] * user.Similarity);
-                }
-
-                var mw = new MovieWeight
-                {
-                    Movie = movie,
-                    Weight = notes.Average()
-                };
-                list.Add(mw);
-            }
-
-            var listOrdered = list.OrderByDescending(x => x.Weight);
-            return listOrdered.Take(max);
-        }
-
         public IEnumerable<MovieWeight> GetBestMoviesOptimized(User user, int max)
         {
             if (user == null || max < 0) throw new ArgumentException();
@@ -213,7 +153,24 @@ namespace Algo
             }
 
             // Calculate movies weight
-            var bestMovies = new List<MovieWeight>();
+            var bestKeeperMovies = new BestKeeper<MovieWeight>(10,
+                Comparer<MovieWeight>.Create(
+                    (a, b) =>
+                    {
+                        if (a.Weight > b.Weight)
+                        {
+                            return 1;
+                        }
+                        else if (a.Weight < b.Weight)
+                        {
+                            return -1;
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+                    }));
+
             foreach (var movie in moviesUnseen)
             {
                 var notes = new List<double>();
@@ -223,18 +180,18 @@ namespace Algo
                         continue;
 
                     // Note * similarité
-                    notes.Add(ud.User.Ratings[movie] * ud.Similarity);
+                    notes.Add((ud.User.Ratings[movie] - 3) * ud.Similarity);
                 }
 
                 var mw = new MovieWeight
                 {
                     Movie = movie,
-                    Weight = notes.Average()
+                    Weight = notes.Average() + 3
                 };
-                bestMovies.Add(mw);
+                bestKeeperMovies.Add(mw);
             }
 
-            return bestMovies.OrderByDescending(x => x.Weight).Take(max);
+            return bestKeeperMovies.GetBestKeeper();
         }
 
         public struct UserDistance
@@ -247,9 +204,70 @@ namespace Algo
         {
             public Movie Movie;
             public double Weight;
+
+        }
+        #endregion Recommandations
+    }
+
+
+
+
+    public class BestKeeper<T>
+    {
+        List<T> _bestKeeper;
+        IComparer<T> _comparer;
+        int _length;
+
+        public List<T> GetBestKeeper()
+        {
+            return _bestKeeper;
         }
 
-        #endregion Recommandations
+        public BestKeeper(int length, IComparer<T> comparer)
+        {
+            _bestKeeper = new List<T>();
+            _comparer = comparer;
+            _length = length;
+        }
+
+        public void Add(T value)
+        {
+            var index = findIndex(value);
+            if (index >= 0)
+            {
+                _bestKeeper.Insert(index, value);
+                if (_bestKeeper.Count > _length)
+                {
+                    _bestKeeper.RemoveAt(_length - 1);
+                }
+            }
+            else if (_bestKeeper.Count < _length)
+            {
+                _bestKeeper.Add(value);
+            }
+        }
+
+        private int findIndex(T value)
+        {
+            // return _bestKeeper.BinarySearch(value, _comparer);
+            foreach (var element in _bestKeeper)
+            {
+                if (_comparer.Compare(element, value) >= 0)
+                {
+                    return _bestKeeper.IndexOf(element);
+                }
+            }
+            return -1;
+        }
+    }
+
+    public static class ListExtension
+    {
+        public static void AddInBestKeeper<T>(this List<T> @this, T value, BestKeeper<T> bestKeeper)
+        {
+            bestKeeper.Add(value);
+            @this.Add(value);
+        }
     }
 
     public static class DictionaryExtension
