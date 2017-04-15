@@ -10,7 +10,7 @@ namespace Algo.Tests
         [Test]
         public void GetFlights()
         {
-            var db = new FlightDatabase(@"C:\_iti\2017-IL-A5-Antoine\Algo\ThirdParty\FlightData\");
+            var db = new FlightDatabase(@"D:\LS4Tonio\IN'TECH_INFO\Algorithmie\2017-IL-A5\Algo\ThirdParty\FlightData\");
 
             {
                 var f0 = db.GetFlights(new DateTime(2010, 7, 26), Airport.FindByCode("BER"), Airport.FindByCode("LHR"));
