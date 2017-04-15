@@ -104,6 +104,7 @@ namespace Algo
             }
         }
 
+        #region Recommandations
         public IEnumerable<MovieWeight> GetBestMoviesOptimized(User user, int maxMovies, int maxUsers)
         {
             if (user == null || maxMovies < 0 || maxUsers <= 0) throw new ArgumentException();
@@ -217,68 +218,6 @@ namespace Algo
 
         }
         #endregion Recommandations
-    }
-
-
-
-
-    public class BestKeeper<T>
-    {
-        List<T> _bestKeeper;
-        IComparer<T> _comparer;
-        int _length;
-
-        public List<T> GetBestKeeper()
-        {
-            return _bestKeeper;
-        }
-
-        public BestKeeper(int length, IComparer<T> comparer)
-        {
-            _bestKeeper = new List<T>();
-            _comparer = comparer;
-            _length = length;
-        }
-
-        // Add an element if necessary
-        public void Add(T value)
-        {
-            var index = findIndex(value);
-            if (index >= 0)
-            {
-                _bestKeeper.Insert(index, value);
-                if (_bestKeeper.Count > _length)
-                {
-                    _bestKeeper.RemoveAt(_length);
-                }
-            }
-            else if (_bestKeeper.Count < _length)
-            {
-                _bestKeeper.Add(value);
-            }
-        }
-
-        private int findIndex(T value)
-        {
-            // return _bestKeeper.BinarySearch(value, _comparer);
-            foreach (var element in _bestKeeper)
-            {
-                if (_comparer.Compare(value, element) >= 0)
-                {
-                    return _bestKeeper.IndexOf(element);
-                }
-            }
-            return -1;
-        }
-    }
-
-    public static class ListExtension
-    {
-        public static void AddInBestKeeper<T>(this List<T> @this, T value, BestKeeper<T> bestKeeper)
-        {
-            bestKeeper.Add(value);
-            @this.Add(value);
-        }
     }
 
     public static class DictionaryExtension

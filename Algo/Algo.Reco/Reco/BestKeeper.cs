@@ -36,7 +36,7 @@ namespace Algo
                 _bestKeeper.Insert(index, value);
                 if (_bestKeeper.Count > _length)
                 {
-                    _bestKeeper.RemoveAt(_length - 1);
+                    _bestKeeper.RemoveAt(_length);
                 }
             }
             else if (_bestKeeper.Count < _length)
