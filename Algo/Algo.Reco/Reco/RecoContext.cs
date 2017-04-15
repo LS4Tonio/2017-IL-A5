@@ -156,7 +156,7 @@ namespace Algo
             Comparer<MovieWeight>.Create(
                 (a, b) =>
                 {
-                    if ( Double.IsNaN(a.Weight) || Double.IsNaN(b.Weight))
+                    if (Double.IsNaN(a.Weight) || Double.IsNaN(b.Weight))
                     {
                         return -1;
                     }
@@ -183,7 +183,7 @@ namespace Algo
                 {
                     if (!ud.User.Ratings.ContainsKey(movie))
                         continue;
-                    
+
                     // Note * similarité
                     notes.Add((ud.User.Ratings[movie] - 3) * ud.Similarity);
                 }
@@ -244,7 +244,7 @@ namespace Algo
                 _bestKeeper.Insert(index, value);
                 if (_bestKeeper.Count > _length)
                 {
-                    _bestKeeper.RemoveAt(_length - 1);
+                    _bestKeeper.RemoveAt(_length);
                 }
             }
             else if (_bestKeeper.Count < _length)
