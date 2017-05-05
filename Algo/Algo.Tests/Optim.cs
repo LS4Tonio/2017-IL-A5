@@ -9,12 +9,11 @@ namespace Algo.Tests
     [TestFixture]
     public class Optim
     {
-        static string GetFlightDataPath([CallerFilePath]string thisFilePath = null)
+        private static string GetFlightDataPath([CallerFilePath]string thisFilePath = null)
         {
             string algoPath = Path.GetDirectoryName(Path.GetDirectoryName(thisFilePath));
             return Path.Combine(algoPath, "ThirdParty", "FlightData");
         }
-
 
         [Test]
         public void opening_database_from_ThirdParty_FlightData()
@@ -67,16 +66,20 @@ namespace Algo.Tests
             }
         }
 
-
         [Test]
         public void creating_a_Meeting()
         {
             Meeting m = new Meeting(GetFlightDataPath());
             Assert.That(m.Guests.Count, Is.EqualTo(9));
-            for(int i = 0; i < 9; ++i )
-            {
-                Assert.That(m.Guests[1].ArrivalFlights.Count, Is.GreaterThan(3));
-            }
+            for (int i = 0; i < 9; ++i)
+                foreach (var g in m.Guests)
+                {
+                    Assert.That(m.Guests[1].ArrivalFlights.Count, Is.GreaterThan(3));
+                    Assert.That(g.ArrivalFlights.Count, Is.GreaterThan(3));
+                    Assert.That(g.DepartureFlights.Count, Is.GreaterThan(3));
+                    Console.WriteLine($"{g.Name} ({g.Location.Code}): {g.ArrivalFlights.Count} {g.DepartureFlights.Count}");
+                }
+            Console.WriteLine($"Cardinality = {m.SolutionCardinality}");
         }
     }
 }
