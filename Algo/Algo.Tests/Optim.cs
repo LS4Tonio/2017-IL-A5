@@ -15,6 +15,8 @@ namespace Algo.Tests
             return Path.Combine(algoPath, "ThirdParty", "FlightData");
         }
 
+        private const int _seed = 3712;
+
         [Test]
         public void opening_database_from_ThirdParty_FlightData()
         {
@@ -69,7 +71,7 @@ namespace Algo.Tests
         [Test]
         public void creating_a_Meeting()
         {
-            Meeting m = new Meeting(GetFlightDataPath());
+            Meeting m = new Meeting(GetFlightDataPath(), 123);
             Assert.That(m.Guests.Count, Is.EqualTo(9));
             foreach (var g in m.Guests)
             {
@@ -78,6 +80,17 @@ namespace Algo.Tests
                 Console.WriteLine($"{g.Name} ({g.Location.Code}): {g.ArrivalFlights.Count} {g.DepartureFlights.Count}");
             }
             Console.WriteLine($"Cardinality = {m.SolutionCardinality}");
+        }
+
+        [TestCase(1000, _seed)]
+        [TestCase(10000, _seed)]
+        [TestCase(100000, _seed)]
+        [TestCase(1000000, _seed)]
+        public void meeting_cost(int nbTry, int seed)
+        {
+            var m = new Meeting(GetFlightDataPath(), seed);
+            m.TryRandom(nbTry);
+            Console.WriteLine($"{string.Join(",", m.BestSolution.Coordinates)} - {m.BestSolution.Cost}");
         }
     }
 }

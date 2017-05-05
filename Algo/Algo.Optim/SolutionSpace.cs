@@ -11,9 +11,9 @@ namespace Algo.Optim
             _random = new Random(seed);
         }
 
-        public int Dimension => Cardinalities.Length;
-        public int[] Cardinalities { get; private set; }
         public SolutionInstance BestSolution { get; internal set; }
+        public int[] Cardinalities { get; protected set; }
+        public int Dimension => Cardinalities.Length;
 
         public SolutionInstance GetRandomInstance()
         {
@@ -28,7 +28,7 @@ namespace Algo.Optim
 
         public void TryRandom(int nbTry)
         {
-            while (--nbTry >=)
+            while (--nbTry >= 0)
             {
                 var c = GetRandomInstance().Cost;
             }

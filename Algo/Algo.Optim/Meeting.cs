@@ -4,9 +4,12 @@ using System.Linq;
 
 namespace Algo.Optim
 {
-    public class Meeting
+    public class Meeting : SolutionSpace
     {
-        public Meeting(string flightDatabasePath)
+        public int MaxFlightCount = 50;
+
+        public Meeting(string flightDatabasePath, int seed)
+            : base(seed)
         {
             Database = new FlightDatabase(flightDatabasePath);
             Location = Airport.FindByCode("LHR");
@@ -61,19 +64,22 @@ namespace Algo.Optim
             MaxArrivalDate = new DateTime(2010, 7, 27, 17, 0, 0);
             MinDepartureDate = new DateTime(2010, 8, 3, 15, 0, 0);
 
-            foreach (var guest in Guests)
+            Cardinalities = new int[Guests.Count * 2];
+            for (var i = 0; i < Guests.Count; i++)
             {
-                GetPossibleArrivalFlights(guest);
-                GetPossibleDepartureFlights(guest);
+                GetPossibleArrivalFlights(Guests[i]);
+                GetPossibleDepartureFlights(Guests[i]);
+
+                Cardinalities[i * 2] = Guests[i].ArrivalFlights.Count;
+                Cardinalities[i * 2 + 1] = Guests[i].DepartureFlights.Count;
             }
         }
 
         public FlightDatabase Database { get; }
+        public List<Guest> Guests { get; }
+        public Airport Location { get; }
         public DateTime MaxArrivalDate { get; }
         public DateTime MinDepartureDate { get; }
-        public Airport Location { get; }
-        public List<Guest> Guests { get; }
-        public int MaxFlightCount = 50;
 
         public double SolutionCardinality
         {
@@ -82,6 +88,11 @@ namespace Algo.Optim
                 return Guests.Select(g => (double)g.ArrivalFlights.Count * g.DepartureFlights.Count)
                              .Aggregate(1.0, (acc, card) => acc * card);
             }
+        }
+
+        protected override SolutionInstance CreateSolutionInstance(int[] coord)
+        {
+            return new MeetingInstance(this, coord);
         }
 
         private void GetPossibleArrivalFlights(Guest guest)
