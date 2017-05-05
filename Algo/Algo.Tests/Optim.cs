@@ -90,7 +90,7 @@ namespace Algo.Tests
         {
             var m = new Meeting(GetFlightDataPath(), seed);
             m.TryRandom(nbTry);
-            Console.WriteLine($"{string.Join(",", m.BestSolution.Coordinates)} - {m.BestSolution.Cost}");
+            Console.WriteLine(m.BestSolution.Cost);
         }
     }
 }

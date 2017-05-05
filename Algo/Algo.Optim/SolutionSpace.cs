@@ -12,17 +12,17 @@ namespace Algo.Optim
         }
 
         public SolutionInstance BestSolution { get; internal set; }
-        public int[] Cardinalities { get; protected set; }
+        public SolutionInstance WorstSolution { get; internal set; }
+        public int[] Cardinalities { get; private set; }
         public int Dimension => Cardinalities.Length;
 
         public SolutionInstance GetRandomInstance()
         {
             var coor = new int[Dimension];
-            for (int i = 0; i < coor.Length; ++i)
+            for (var i = 0; i < Dimension; ++i)
             {
                 coor[i] = _random.Next(Cardinalities[i]);
             }
-
             return CreateSolutionInstance(coor);
         }
 
@@ -35,5 +35,10 @@ namespace Algo.Optim
         }
 
         protected abstract SolutionInstance CreateSolutionInstance(int[] coord);
+
+        protected void Initialize(int[] cardinalities)
+        {
+            Cardinalities = cardinalities;
+        }
     }
 }

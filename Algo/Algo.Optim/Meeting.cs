@@ -7,6 +7,7 @@ namespace Algo.Optim
     public class Meeting : SolutionSpace
     {
         public int MaxFlightCount = 50;
+        public double WaitingMinutePrice = 4;
 
         public Meeting(string flightDatabasePath, int seed)
             : base(seed)
@@ -64,15 +65,16 @@ namespace Algo.Optim
             MaxArrivalDate = new DateTime(2010, 7, 27, 17, 0, 0);
             MinDepartureDate = new DateTime(2010, 8, 3, 15, 0, 0);
 
-            Cardinalities = new int[Guests.Count * 2];
+            var cardinalities = new int[Guests.Count * 2];
             for (var i = 0; i < Guests.Count; i++)
             {
                 GetPossibleArrivalFlights(Guests[i]);
                 GetPossibleDepartureFlights(Guests[i]);
 
-                Cardinalities[i * 2] = Guests[i].ArrivalFlights.Count;
-                Cardinalities[i * 2 + 1] = Guests[i].DepartureFlights.Count;
+                cardinalities[i * 2] = Guests[i].ArrivalFlights.Count;
+                cardinalities[i * 2 + 1] = Guests[i].DepartureFlights.Count;
             }
+            Initialize(cardinalities);
         }
 
         public FlightDatabase Database { get; }
