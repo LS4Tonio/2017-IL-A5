@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Diagnostics;
 
 namespace Algo
 {
@@ -39,23 +40,24 @@ namespace Algo
             return u.ToArray();
         }
 
-        public static void ReadRatings(User[] users, Movie[] movies, string path)
+        static public int ReadRatings( User[] users, Movie[] movies, string path )
         {
+            int count = 0;
             using (TextReader r = File.OpenText(path))
             {
                 string line;
                 while ((line = r.ReadLine()) != null)
                 {
                     string[] cells = line.Split(CellSeparator, StringSplitOptions.None);
-                    int idUser = int.Parse(cells[0]);
-                    int idMovie = int.Parse(cells[1]);
-                    if (idMovie >= 0 && idMovie < movies.Length
-                        && idUser >= 0 && idUser < users.Length)
-                    {
-                        users[idUser].Ratings.Add(movies[idMovie], int.Parse(cells[2]));
-                    }
+                    int idUser = int.Parse( cells[0] ) - 1;
+                    int idMovie = int.Parse( cells[1] ) - 1;
+                    Debug.Assert(idMovie >= 0 && idMovie < movies.Length);
+                    Debug.Assert(idUser >= 0 && idUser < users.Length);
+                    users[idUser].Ratings.Add( movies[idMovie], int.Parse( cells[2] ) );
+                    ++count;
                 }
             }
+            return count;
         }
 
         public int UserID { get { return _userId; } set { _userId = (ushort)value; } }
