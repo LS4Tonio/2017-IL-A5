@@ -9,18 +9,18 @@ namespace Algo.Tests
 {
     [TestFixture]
     public class Reco
-    { 
-        static string GetMovieDataPath( [CallerFilePath]string thisFilePath = null )
+    {
+        private static string GetMovieDataPath([CallerFilePath]string thisFilePath = null)
         {
             string algoPath = Path.GetDirectoryName(Path.GetDirectoryName(thisFilePath));
             return Path.Combine(algoPath, "ThirdParty", "MovieData");
         }
 
-        static string GetBadDataPath() => Path.Combine(GetMovieDataPath(), "MovieLens");
+        private static string GetBadDataPath() => Path.Combine(GetMovieDataPath(), "MovieLens");
 
-        static string GetGoodDataPath() => GetMovieDataPath();
+        private static string GetGoodDataPath() => GetMovieDataPath();
 
-        RecoContext _context;
+        private RecoContext _context;
 
         [SetUp]
         public void LoadTestDataOnlyOnce()
@@ -28,7 +28,7 @@ namespace Algo.Tests
             if (_context == null)
             {
                 var c = new RecoContext();
-                if( c.LoadFrom(GetGoodDataPath()) ) _context = c;
+                if (c.LoadFrom(GetGoodDataPath())) _context = c;
             }
         }
 
@@ -37,25 +37,25 @@ namespace Algo.Tests
         {
             Dictionary<int, Movie> firstMovies;
             Dictionary<int, List<Movie>> duplicateMovies;
-            Movie.ReadMovies( Path.Combine( GetBadDataPath(), "movies.dat" ), out firstMovies, out duplicateMovies );
+            Movie.ReadMovies(Path.Combine(GetBadDataPath(), "movies.dat"), out firstMovies, out duplicateMovies);
             int idMovieMin = firstMovies.Keys.Min();
             int idMovieMax = firstMovies.Keys.Max();
             Console.WriteLine("{3} Movies from {0} to {1}, {2} duplicates.", idMovieMin, idMovieMax, duplicateMovies.Count, firstMovies.Count);
 
             Dictionary<int, User> firstUsers;
             Dictionary<int, List<User>> duplicateUsers;
-            User.ReadUsers( Path.Combine( GetBadDataPath(), "users.dat" ), out firstUsers, out duplicateUsers );
+            User.ReadUsers(Path.Combine(GetBadDataPath(), "users.dat"), out firstUsers, out duplicateUsers);
             int idUserMin = firstUsers.Keys.Min();
             int idUserMax = firstUsers.Keys.Max();
             Console.WriteLine("{3} Users from {0} to {1}, {2} duplicates.", idUserMin, idUserMax, duplicateUsers.Count, firstUsers.Count);
 
             Dictionary<int, string> badLines;
-            int nbRating = User.ReadRatings( Path.Combine( GetBadDataPath(), "ratings.dat" ), firstUsers, firstMovies, out badLines );
+            int nbRating = User.ReadRatings(Path.Combine(GetBadDataPath(), "ratings.dat"), firstUsers, firstMovies, out badLines);
             Console.WriteLine("{0} Ratings: {1} bad lines.", nbRating, badLines.Count);
 
-            Directory.CreateDirectory( GetGoodDataPath() );
+            Directory.CreateDirectory(GetGoodDataPath());
             // Saves Movies
-            using( TextWriter w = File.CreateText( Path.Combine( GetGoodDataPath(), "movies.dat" ) ) )
+            using (TextWriter w = File.CreateText(Path.Combine(GetGoodDataPath(), "movies.dat")))
             {
                 int idMovie = 0;
                 foreach (Movie m in firstMovies.Values)
@@ -88,7 +88,7 @@ namespace Algo.Tests
                 "tradesman/craftsman",
                 "unemployed",
                 "writer" };
-            using( TextWriter w = File.CreateText( Path.Combine( GetGoodDataPath(), "users.dat" ) ) )
+            using (TextWriter w = File.CreateText(Path.Combine(GetGoodDataPath(), "users.dat")))
             {
                 int idUser = 0;
                 foreach (User u in firstUsers.Values)
@@ -107,7 +107,7 @@ namespace Algo.Tests
                 }
             }
             // Saves Rating
-            using( TextWriter w = File.CreateText( Path.Combine( GetGoodDataPath(), "ratings.dat" ) ) )
+            using (TextWriter w = File.CreateText(Path.Combine(GetGoodDataPath(), "ratings.dat")))
             {
                 foreach (User u in firstUsers.Values)
                 {
@@ -145,7 +145,7 @@ namespace Algo.Tests
         public void BestUnseenMoviesOptimized(int index)
         {
             RecoContext c = new RecoContext();
-            c.LoadFrom(_goodDataPath);
+            c.LoadFrom(GetGoodDataPath());
 
             var movies = c.GetBestMoviesOptimized(c.Users[index], 10, 300);
 

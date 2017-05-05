@@ -78,22 +78,10 @@ namespace Algo.Optim
             MinDepartureDate = new DateTime(2010, 8, 3, 15, 0, 0);
         }
 
-
         public FlightDatabase Database { get; }
-
-
-        public List<Guest> Guests { get; } = new List<Guest>();
-
         public DateTime MaxArrivalDate { get; }
-
         public DateTime MinDepartureDate { get; }
-
         public Airport Location { get; }
-
         public List<Guest> Guests { get; }
-
-        public DateTime MaxArrivalDate { get; }
-
-        public DateTime MinDepartureDate { get; set; }
     }
 }

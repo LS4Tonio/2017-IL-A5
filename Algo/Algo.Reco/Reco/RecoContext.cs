@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
+
 using System.Diagnostics;
 
 namespace Algo
@@ -16,13 +17,13 @@ namespace Algo
         public bool LoadFrom(string folder)
         {
             string p = Path.Combine(folder, "users.dat");
-            if (!File.Exists(p)) return false; 
+            if (!File.Exists(p)) return false;
             Users = User.ReadUsers(p);
             p = Path.Combine(folder, "movies.dat");
-            if (!File.Exists(p)) return false; 
+            if (!File.Exists(p)) return false;
             Movies = Movie.ReadMovies(p);
             p = Path.Combine(folder, "ratings.dat");
-            if (!File.Exists(p)) return false; 
+            if (!File.Exists(p)) return false;
             RatingCount = User.ReadRatings(Users, Movies, p);
             return true;
         }
@@ -114,6 +115,7 @@ namespace Algo
         }
 
         #region Recommandations
+
         public IEnumerable<MovieWeight> GetBestMoviesOptimized(User user, int maxMovies, int maxUsers)
         {
             if (user == null || maxMovies < 0 || maxUsers <= 0) throw new ArgumentException();
@@ -164,7 +166,6 @@ namespace Algo
                         .Except(user.Ratings.Keys)
                         .Except(moviesUnseen));
             }
-
 
             // Calculate movies weight
             var bestKeeperMovies = new BestKeeper<MovieWeight>(maxMovies,
@@ -224,48 +225,9 @@ namespace Algo
         {
             public Movie Movie;
             public double Weight;
-
         }
+
         #endregion Recommandations
-    }
-        static public double SimilarityPearson(IEnumerable<KeyValuePair<int, int>> values)
-        {
-            double sumX = 0.0;
-            double sumY = 0.0;
-            double sumXY = 0.0;
-            double sumX2 = 0.0;
-            double sumY2 = 0.0;
-
-            int count = 0;
-            foreach (var m in values)
-            {
-                count++;
-                int x = m.Key;
-                int y = m.Value;
-                sumX += x;
-                sumY += y;
-                sumXY += x * y;
-                sumX2 += x * x;
-                sumY2 += y * y;
-            }
-            if (count == 0) return 0.0;
-            if (count == 1)
-            {
-                var onlyOne = values.Single();
-                double d = Math.Abs(onlyOne.Key - onlyOne.Value);
-                return 1 / (1 + d);
-            }
-            double numerator = sumXY - (sumX * sumY / count);
-            double denumerator1 = sumX2 - (sumX * sumX / count);
-            double denumerator2 = sumY2 - (sumY * sumY / count);
-            var result = numerator / Math.Sqrt(denumerator1 * denumerator2);
-            if (double.IsNaN(result))
-            {
-                double sumSquare = values.Select(v => v.Key - v.Value).Select(v => v * v).Sum();
-                result = 1.0 / (1 + Math.Sqrt(sumSquare));
-            }
-            return result;
-        }
     }
 
     public static class DictionaryExtension
