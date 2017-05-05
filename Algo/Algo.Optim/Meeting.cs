@@ -121,5 +121,32 @@ namespace Algo.Optim
 
             guest.DepartureFlights.AddRange(flights);
         }
+
+        public void MonteCarlo()
+        {
+            var max = 10000;
+              var instance = GetRandomInstance();
+
+            while(!isSame(instance) || max <= 0)
+            {
+                instance = getNeighbours();
+                max--;
+            }
+        }
+
+        private SolutionInstance getNeighbours()
+        {
+            i
+        }
+
+        private bool isSame(SolutionInstance instance)
+        {
+            for (int i = 0; i < instance.Coordinates.Length; i++)
+            {
+                if (instance.Coordinates[i] != BestSolution.Coordinates[i]) return false;
+
+            }
+            return true;
+        }
     }
 }

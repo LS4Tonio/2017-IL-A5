@@ -92,5 +92,16 @@ namespace Algo.Tests
             m.TryRandom(nbTry);
             Console.WriteLine(m.BestSolution.Cost);
         }
+
+        [TestCase(1000, _seed)]
+        [TestCase(10000, _seed)]
+        [TestCase(100000, _seed)]
+        [TestCase(1000000, _seed)]
+        public void monte_carlo_cost(int nbTry, int seed)
+        {
+            var m = new Meeting(GetFlightDataPath(), seed);
+            m.MonteCarlo();
+            Console.WriteLine(m.BestSolution.Cost);
+        }
     }
 }
