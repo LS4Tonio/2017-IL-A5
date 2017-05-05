@@ -11,7 +11,6 @@ namespace Algo.Tests
         public void GetFlights()
         {
             var db = new FlightDatabase(@"D:\LS4Tonio\IN'TECH_INFO\Algorithmie\2017-IL-A5\Algo\ThirdParty\FlightData\");
-
             {
                 var f0 = db.GetFlights(new DateTime(2010, 7, 26), Airport.FindByCode("BER"), Airport.FindByCode("LHR"));
                 var f1 = db.GetFlights(new DateTime(2010, 7, 26), Airport.FindByCode("CDG"), Airport.FindByCode("LHR"));
