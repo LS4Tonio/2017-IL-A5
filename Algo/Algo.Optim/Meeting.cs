@@ -22,8 +22,9 @@ namespace Algo.Optim
 
     public class Meeting
     {
-        public Meeting()
+        public Meeting(string flightDatabasePath)
         {
+            Database = new FlightDatabase(flightDatabasePath);
             Location = Airport.FindByCode("LHR");
             Guests = new List<Guest>
             {
@@ -76,6 +77,16 @@ namespace Algo.Optim
             MaxArrivalDate = new DateTime(2010, 7, 27, 17, 0, 0);
             MinDepartureDate = new DateTime(2010, 8, 3, 15, 0, 0);
         }
+
+
+        public FlightDatabase Database { get; }
+
+
+        public List<Guest> Guests { get; } = new List<Guest>();
+
+        public DateTime MaxArrivalDate { get; }
+
+        public DateTime MinDepartureDate { get; }
 
         public Airport Location { get; }
 

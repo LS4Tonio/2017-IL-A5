@@ -1,16 +1,25 @@
 ﻿using System;
 using NUnit.Framework;
 using Algo.Optim;
+using System.Runtime.CompilerServices;
+using System.IO;
 
 namespace Algo.Tests
 {
     [TestFixture]
     public class Optim
     {
-        [Test]
-        public void GetFlights()
+        static string GetFlightDataPath([CallerFilePath]string thisFilePath = null)
         {
-            var db = new FlightDatabase(@"D:\LS4Tonio\IN'TECH_INFO\Algorithmie\2017-IL-A5\Algo\ThirdParty\FlightData\");
+            string algoPath = Path.GetDirectoryName(Path.GetDirectoryName(thisFilePath));
+            return Path.Combine(algoPath, "ThirdParty", "FlightData");
+        }
+
+
+        [Test]
+        public void opening_database_from_ThirdParty_FlightData()
+        {
+            FlightDatabase db = new FlightDatabase(GetFlightDataPath());
             {
                 var f0 = db.GetFlights(new DateTime(2010, 7, 26), Airport.FindByCode("BER"), Airport.FindByCode("LHR"));
                 var f1 = db.GetFlights(new DateTime(2010, 7, 26), Airport.FindByCode("CDG"), Airport.FindByCode("LHR"));
@@ -55,6 +64,18 @@ namespace Algo.Tests
                 var f6 = db.GetFlights(new DateTime(2010, 8, 4), Airport.FindByCode("LHR"), Airport.FindByCode("JFK"));
                 var f7 = db.GetFlights(new DateTime(2010, 8, 4), Airport.FindByCode("LHR"), Airport.FindByCode("TUN"));
                 var f8 = db.GetFlights(new DateTime(2010, 8, 4), Airport.FindByCode("LHR"), Airport.FindByCode("MXP"));
+            }
+        }
+
+
+        [Test]
+        public void creating_a_Meeting()
+        {
+            Meeting m = new Meeting(GetFlightDataPath());
+            Assert.That(m.Guests.Count, Is.EqualTo(9));
+            for(int i = 0; i < 9; ++i )
+            {
+                Assert.That(m.Guests[1].ArrivalFlights.Count, Is.GreaterThan(3));
             }
         }
     }
