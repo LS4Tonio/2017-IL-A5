@@ -47,5 +47,32 @@ namespace Algo.Optim
         }
 
         internal protected abstract SolutionInstance CreateSolutionInstance(int[] coord);
+
+        public SolutionInstance RecuitSimule()
+        {
+            var best = this.GetRandomInstance();
+            double T_min = 0.00001;
+            double T = 1;
+            var old_cost = best.Cost;
+            double alpha = 0.9;
+            var random = new Random();
+
+            while (T > T_min)
+            {
+                foreach (var n in best.Neighbors)
+                {
+                    var new_cost = n.Cost;
+                    var ap = 2.71828 * ((old_cost - new_cost) / T); // TO DO
+                    if (ap > random.Next())
+                    {
+                        best = n;
+                        old_cost = new_cost;
+                    }
+                }
+                T = T * alpha;
+            }
+
+            return best;
+        }
     }
 }

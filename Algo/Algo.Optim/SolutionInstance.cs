@@ -91,5 +91,7 @@ namespace Algo.Optim
         }
 
         protected abstract double DoComputeCost();
+
+        
     }
 }

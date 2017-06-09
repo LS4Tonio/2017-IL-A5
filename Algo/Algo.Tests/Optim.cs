@@ -100,5 +100,13 @@ namespace Algo.Tests
                 Console.WriteLine($"After {i*200} random => Best = {m.BestSolution.Cost} €, Worst = {m.WorstSolution.Cost} €.");
             }
         }
+
+        [Test]
+        public void simulated_annealing_cost()
+        {
+            Meeting m = new Meeting(GetFlightDataPath(), 124);
+            var beeeeeeest = m.RecuitSimule();
+            Console.WriteLine($"Best cost after simulated annealing {beeeeeeest.Cost}");
+        }
     }
 }
