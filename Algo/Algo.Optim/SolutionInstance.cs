@@ -50,6 +50,7 @@ namespace Algo.Optim
                 yield return last;
                 var best = last.BestAmongNeighbors;
                 if (best == last) break;
+                last = best;
             }
         }
 

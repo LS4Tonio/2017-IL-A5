@@ -38,11 +38,14 @@ namespace Algo.Optim
             return CreateSolutionInstance(coord);
         }
 
-        public void TryRandom(int nbTry)
+        public void TryRandom(int nbTry, bool useMonteCarlo = false)
         {
+            double forceCompueCost;
             while (--nbTry >= 0)
             {
-                var c = GetRandomInstance().Cost;
+                var r = GetRandomInstance();
+                if (useMonteCarlo) r = r.MonteCarloPath().Last();
+                else forceCompueCost = r.Cost;
             }
         }
 

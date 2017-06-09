@@ -90,14 +90,18 @@ namespace Algo.Tests
             Console.WriteLine($"Cardinality = {m.SolutionCardinality}");
         }
 
-        [Test]
-        public void random_algorithm()
+        [TestCase(100, false, 1)]
+        [TestCase(100, true, 1)]
+        [TestCase(400, false, 2)]
+        [TestCase(400, true, 2)]
+        [TestCase(800, true, 3)]
+        public void random_algorithm(int loop, bool useMonteCarlo, int seed)
         {
-            Meeting m = new Meeting(GetFlightDataPath(), 124);
-            for( int i = 0; i < 200; ++i )
+            Meeting m = new Meeting(GetFlightDataPath(), seed);
+            for (int i = 0; i < 10; ++i)
             {
-                m.TryRandom(200);
-                Console.WriteLine($"After {i*200} random => Best = {m.BestSolution.Cost} €, Worst = {m.WorstSolution.Cost} €.");
+                m.TryRandom(loop,useMonteCarlo);
+                Console.WriteLine($"After {(i+1) * loop} random => Best = {m.BestSolution.Cost} €, Worst = {m.WorstSolution.Cost} €.");
             }
         }
 

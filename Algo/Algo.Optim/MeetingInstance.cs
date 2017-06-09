@@ -45,7 +45,7 @@ namespace Algo.Optim
                                                 .Sum();
             var totalMinutesWaitDeparture = guests.Select(g => (g.Departure.DepartureTime - minDepartureTime).TotalMinutes)
                                                 .Sum();
-            var waitCost = (totalMinutesWaitArrival + totalMinutesWaitDeparture) * Space.WaitingMinutePrice;
+            var waitCost = Space.WaitingMinutePrice( totalMinutesWaitArrival + totalMinutesWaitDeparture );
 
             var flightCost = guests.Select(g => g.Arrival.Price + g.Departure.Price).Sum();
 
