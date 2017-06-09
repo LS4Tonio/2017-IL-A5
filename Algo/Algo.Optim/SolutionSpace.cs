@@ -10,7 +10,7 @@ namespace Algo.Optim
     {
         readonly Random _random;
 
-        protected SolutionSpace(int seed )
+        protected SolutionSpace(int seed)
         {
             _random = new Random(seed);
         }
@@ -31,7 +31,7 @@ namespace Algo.Optim
         public SolutionInstance GetRandomInstance()
         {
             int[] coord = new int[Dimension];
-            for(int i = 0; i < Dimension; ++i )
+            for (int i = 0; i < Dimension; ++i)
             {
                 coord[i] = _random.Next(Cardinalities[i]);
             }
@@ -50,7 +50,7 @@ namespace Algo.Optim
 
         public SolutionInstance RecuitSimule()
         {
-            var best = this.GetRandomInstance();
+            SolutionInstance best = this.GetRandomInstance();
             double T_min = 0.00001;
             double T = 1;
             var old_cost = best.Cost;
@@ -59,14 +59,21 @@ namespace Algo.Optim
 
             while (T > T_min)
             {
-                foreach (var n in best.Neighbors)
+                for (int i = 1; i <= 100; i++)
                 {
-                    var new_cost = n.Cost;
-                    var ap = 2.71828 * ((old_cost - new_cost) / T); // TO DO
-                    if (ap > random.Next())
+                    SolutionInstance intance = this.GetRandomInstance();
+                    if (best != intance)
                     {
-                        best = n;
-                        old_cost = new_cost;
+                        foreach (var n in intance.Neighbors)
+                        {
+                            var new_cost = n.Cost;
+                            var ap = Math.Exp((old_cost - new_cost) / T);
+                            if (ap > random.Next())
+                            {
+                                best = n;
+                                old_cost = new_cost;
+                            }
+                        }
                     }
                 }
                 T = T * alpha;

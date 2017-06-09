@@ -101,10 +101,17 @@ namespace Algo.Tests
             }
         }
 
-        [Test]
-        public void simulated_annealing_cost()
+        [TestCase(124)]
+        [TestCase(9)]
+        [TestCase(1336)]
+        [TestCase(42)]
+        [TestCase(12345)]
+        [TestCase(98765)]
+        [TestCase(1000)]
+        [TestCase(1)]
+        public void simulated_annealing_cost(int seed)
         {
-            Meeting m = new Meeting(GetFlightDataPath(), 124);
+            Meeting m = new Meeting(GetFlightDataPath(), seed);
             var beeeeeeest = m.RecuitSimule();
             Console.WriteLine($"Best cost after simulated annealing {beeeeeeest.Cost}");
         }
