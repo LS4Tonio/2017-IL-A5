@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Algo.Optim
 {
     public class MeetingInstance : SolutionInstance
     {
         public MeetingInstance(Meeting m, int[] coord)
-            : base( m, coord )
+            : base(m, coord)
         {
         }
 
@@ -19,14 +16,14 @@ namespace Algo.Optim
 
         public DateTime BusTimeOnDeparture { get; private set; }
 
-        SimpleFlight ArrivalFor(int guestIdx)
+        private SimpleFlight ArrivalFor(int guestIdx)
         {
-            return Space.Guests[guestIdx].ArrivalFlights[Coordinates[guestIdx*2]];
+            return Space.Guests[guestIdx].ArrivalFlights[Coordinates[guestIdx * 2]];
         }
 
-        SimpleFlight DepartureFor(int guestIdx)
+        private SimpleFlight DepartureFor(int guestIdx)
         {
-            return Space.Guests[guestIdx].DepartureFlights[Coordinates[guestIdx * 2+1]];
+            return Space.Guests[guestIdx].DepartureFlights[Coordinates[guestIdx * 2 + 1]];
         }
 
         protected override double DoComputeCost()
@@ -45,7 +42,7 @@ namespace Algo.Optim
                                                 .Sum();
             var totalMinutesWaitDeparture = guests.Select(g => (g.Departure.DepartureTime - minDepartureTime).TotalMinutes)
                                                 .Sum();
-            var waitCost = Space.WaitingMinutePrice( totalMinutesWaitArrival + totalMinutesWaitDeparture );
+            var waitCost = Space.WaitingMinutePrice(totalMinutesWaitArrival + totalMinutesWaitDeparture);
 
             var flightCost = guests.Select(g => g.Arrival.Price + g.Departure.Price).Sum();
 

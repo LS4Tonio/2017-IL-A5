@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Algo.Optim
 {
     public abstract class SolutionInstance
     {
-        readonly SolutionSpace _space;
-        double _cost = -1.0;
+        private readonly SolutionSpace _space;
+        private double _cost = -1.0;
 
-        protected SolutionInstance( SolutionSpace space, int[] coord )
+        protected SolutionInstance(SolutionSpace space, int[] coord)
         {
             _space = space;
             Coordinates = coord;
@@ -28,7 +25,7 @@ namespace Algo.Optim
 
         public double Cost => _cost >= 0 ? _cost : (_cost = ComputeCost());
 
-        double ComputeCost()
+        private double ComputeCost()
         {
             double c = DoComputeCost();
             if (_space.BestSolution == null || c < _space.BestSolution.Cost)
@@ -45,7 +42,7 @@ namespace Algo.Optim
         public IEnumerable<SolutionInstance> MonteCarloPath()
         {
             SolutionInstance last = this;
-            for(;;)
+            for (;;)
             {
                 yield return last;
                 var best = last.BestAmongNeighbors;
@@ -54,12 +51,12 @@ namespace Algo.Optim
             }
         }
 
-        SolutionInstance BestAmongNeighbors
+        private SolutionInstance BestAmongNeighbors
         {
             get
             {
                 SolutionInstance best = this;
-                foreach( var n in Neighbors )
+                foreach (var n in Neighbors)
                 {
                     if (n.Cost < best.Cost) best = n;
                 }
@@ -67,7 +64,7 @@ namespace Algo.Optim
             }
         }
 
-        SolutionInstance RandomNeighbor
+        private SolutionInstance RandomNeighbor
         {
             get
             {
@@ -79,16 +76,16 @@ namespace Algo.Optim
             }
         }
 
-        SolutionInstance GetNeighbor( int iDim, bool right )
+        private SolutionInstance GetNeighbor(int iDim, bool right)
         {
             int v = Coordinates[iDim];
-            if( right )
+            if (right)
             {
-                if( ++v >= _space.Cardinalities[iDim]) return null;
+                if (++v >= _space.Cardinalities[iDim]) return null;
             }
             else
             {
-                if( --v < 0 ) return null;
+                if (--v < 0) return null;
             }
             int[] prevCoords = (int[])Coordinates.Clone();
             prevCoords[iDim] = v;
@@ -101,13 +98,13 @@ namespace Algo.Optim
             double minTemp = 0.0001;
             double alpha = 0.9;
             SolutionInstance current = this;
-            while ( temp > minTemp )
+            while (temp > minTemp)
             {
-                for( int i = 0; i < countPerTempDecrease; ++i )
+                for (int i = 0; i < countPerTempDecrease; ++i)
                 {
                     var n = current.RandomNeighbor;
                     double deltaCost = current.Cost - n.Cost;
-                    if(deltaCost >= 0 || Math.Exp( deltaCost / current.Cost / temp ) > _space.Random.NextDouble() )
+                    if (deltaCost >= 0 || Math.Exp(deltaCost / current.Cost / temp) > _space.Random.NextDouble())
                     {
                         current = n;
                     }
@@ -121,17 +118,17 @@ namespace Algo.Optim
         {
             get
             {
-                for( int i = 0; i < _space.Dimension; ++i )
+                for (int i = 0; i < _space.Dimension; ++i)
                 {
                     int prevValue = Coordinates[i] - 1;
-                    if( prevValue >= 0 )
+                    if (prevValue >= 0)
                     {
                         int[] prevCoords = (int[])Coordinates.Clone();
                         prevCoords[i] = prevValue;
                         yield return _space.CreateSolutionInstance(prevCoords);
                     }
                     int nextValue = Coordinates[i] + 1;
-                    if( nextValue < _space.Cardinalities[i] )
+                    if (nextValue < _space.Cardinalities[i])
                     {
                         int[] nextCoords = (int[])Coordinates.Clone();
                         nextCoords[i] = nextValue;
@@ -142,7 +139,5 @@ namespace Algo.Optim
         }
 
         protected abstract double DoComputeCost();
-
-        
     }
 }

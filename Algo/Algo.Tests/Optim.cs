@@ -13,13 +13,11 @@ namespace Algo.Tests
     [TestFixture]
     public class Optim
     {
-
-        static string GetFlightDataPath([CallerFilePath]string thisFilePath = null)
+        private static string GetFlightDataPath([CallerFilePath]string thisFilePath = null)
         {
             string algoPath = Path.GetDirectoryName(Path.GetDirectoryName(thisFilePath));
             return Path.Combine(algoPath, "ThirdParty", "FlightData");
         }
-
 
         [Test]
         public void opening_database_from_ThirdParty_FlightData()
@@ -71,10 +69,7 @@ namespace Algo.Tests
                 var f7 = db.GetFlights(new DateTime(2010, 8, 4), Airport.FindByCode("LHR"), Airport.FindByCode("TUN"));
                 var f8 = db.GetFlights(new DateTime(2010, 8, 4), Airport.FindByCode("LHR"), Airport.FindByCode("MXP"));
             }
-
-
         }
-
 
         [Test]
         public void creating_a_Meeting()
@@ -111,7 +106,7 @@ namespace Algo.Tests
         [TestCase(10, 300, 124)]
         [TestCase(10, 300, 125)]
         [TestCase(10, 400, 125)]
-        public void using_Simulated_Annealing(int loop, int countPerTempDecrease, int seed )
+        public void using_Simulated_Annealing(int loop, int countPerTempDecrease, int seed)
         {
             int totalAWin = 0;
             int totalAMWin = 0;
@@ -119,14 +114,14 @@ namespace Algo.Tests
             Meeting m = new Meeting(GetFlightDataPath(), seed);
             for (int i = 0; i < 10; ++i)
             {
-                Tuple<int,int,int> win = m.TrySimulatedAnnealing(loop, countPerTempDecrease);
+                Tuple<int, int, int> win = m.TrySimulatedAnnealing(loop, countPerTempDecrease);
                 totalAWin += win.Item1;
                 totalAMWin += win.Item2;
                 totalMAWin += win.Item3;
                 Console.WriteLine($"After {(i + 1) * loop} random => Best = {m.BestSolution.Cost} €, Worst = {m.WorstSolution.Cost} €.");
                 Console.WriteLine($"SA wins MC {win.Item1} and SA+MC wins SA {win.Item2} and MC+SA wins SA {win.Item3} times out of {loop}.");
             }
-            Console.WriteLine($"SA wins MC {totalAWin} and SA+MC wins SA {totalAMWin} and MC+SA wins SA {totalMAWin} times out of {10*loop}.");
+            Console.WriteLine($"SA wins MC {totalAWin} and SA+MC wins SA {totalAMWin} and MC+SA wins SA {totalMAWin} times out of {10 * loop}.");
         }
 
         [TestCase(124)]

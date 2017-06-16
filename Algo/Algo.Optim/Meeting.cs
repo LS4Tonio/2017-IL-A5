@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Algo.Optim
 {
@@ -118,7 +117,7 @@ namespace Algo.Optim
 
         public int MaxFlightCount = 50;
 
-        public double WaitingMinutePrice( double count )
+        public double WaitingMinutePrice(double count)
         {
             if (count < 10) return 0;
             if (count < 20) return count * 4;

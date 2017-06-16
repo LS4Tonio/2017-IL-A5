@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Algo.Optim
 {
     public abstract class SolutionSpace
     {
-        readonly Random _random;
+        private readonly Random _random;
 
         protected SolutionSpace(int seed)
         {
@@ -50,7 +47,8 @@ namespace Algo.Optim
                 else forceComputeCost = r.Cost;
             }
         }
-        public Tuple<int,int,int> TrySimulatedAnnealing(int nbTry, int countPerTempDecrease)
+
+        public Tuple<int, int, int> TrySimulatedAnnealing(int nbTry, int countPerTempDecrease)
         {
             int aWin = 0;
             int amWin = 0;
@@ -58,7 +56,7 @@ namespace Algo.Optim
             while (--nbTry >= 0)
             {
                 var r = GetRandomInstance();
-                var a = r.SimulatedAnnealing( countPerTempDecrease );
+                var a = r.SimulatedAnnealing(countPerTempDecrease);
                 var m = r.MonteCarloPath().Last();
                 var ma = m.SimulatedAnnealing(countPerTempDecrease);
                 var am = a.MonteCarloPath().Last();
@@ -66,10 +64,10 @@ namespace Algo.Optim
                 if (am.Cost < a.Cost) ++amWin;
                 if (ma.Cost < a.Cost) ++maWin;
             }
-            return Tuple.Create( aWin, amWin, maWin);
+            return Tuple.Create(aWin, amWin, maWin);
         }
 
-        internal protected abstract SolutionInstance CreateSolutionInstance(int[] coord);
+        protected internal abstract SolutionInstance CreateSolutionInstance(int[] coord);
 
         public SolutionInstance RecuitSimule()
         {
