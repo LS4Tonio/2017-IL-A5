@@ -100,9 +100,33 @@ namespace Algo.Tests
             Meeting m = new Meeting(GetFlightDataPath(), seed);
             for (int i = 0; i < 10; ++i)
             {
-                m.TryRandom(loop,useMonteCarlo);
-                Console.WriteLine($"After {(i+1) * loop} random => Best = {m.BestSolution.Cost} €, Worst = {m.WorstSolution.Cost} €.");
+                m.TryRandom(loop, useMonteCarlo);
+                Console.WriteLine($"After {(i + 1) * loop} random => Best = {m.BestSolution.Cost} €, Worst = {m.WorstSolution.Cost} €.");
             }
+        }
+
+        [TestCase(10, 10, 124)]
+        [TestCase(10, 100, 124)]
+        [TestCase(10, 200, 124)]
+        [TestCase(10, 300, 124)]
+        [TestCase(10, 300, 125)]
+        [TestCase(10, 400, 125)]
+        public void using_Simulated_Annealing(int loop, int countPerTempDecrease, int seed )
+        {
+            int totalAWin = 0;
+            int totalAMWin = 0;
+            int totalMAWin = 0;
+            Meeting m = new Meeting(GetFlightDataPath(), seed);
+            for (int i = 0; i < 10; ++i)
+            {
+                Tuple<int,int,int> win = m.TrySimulatedAnnealing(loop, countPerTempDecrease);
+                totalAWin += win.Item1;
+                totalAMWin += win.Item2;
+                totalMAWin += win.Item3;
+                Console.WriteLine($"After {(i + 1) * loop} random => Best = {m.BestSolution.Cost} €, Worst = {m.WorstSolution.Cost} €.");
+                Console.WriteLine($"SA wins MC {win.Item1} and SA+MC wins SA {win.Item2} and MC+SA wins SA {win.Item3} times out of {loop}.");
+            }
+            Console.WriteLine($"SA wins MC {totalAWin} and SA+MC wins SA {totalAMWin} and MC+SA wins SA {totalMAWin} times out of {10*loop}.");
         }
 
         [TestCase(124)]

@@ -67,6 +67,56 @@ namespace Algo.Optim
             }
         }
 
+        SolutionInstance RandomNeighbor
+        {
+            get
+            {
+                for (;;)
+                {
+                    var n = GetNeighbor(_space.Random.Next(_space.Dimension), _space.Random.Next(2) == 1);
+                    if (n != null) return n;
+                }
+            }
+        }
+
+        SolutionInstance GetNeighbor( int iDim, bool right )
+        {
+            int v = Coordinates[iDim];
+            if( right )
+            {
+                if( ++v >= _space.Cardinalities[iDim]) return null;
+            }
+            else
+            {
+                if( --v < 0 ) return null;
+            }
+            int[] prevCoords = (int[])Coordinates.Clone();
+            prevCoords[iDim] = v;
+            return _space.CreateSolutionInstance(prevCoords);
+        }
+
+        public SolutionInstance SimulatedAnnealing(int countPerTempDecrease = 100)
+        {
+            double temp = 1.0;
+            double minTemp = 0.0001;
+            double alpha = 0.9;
+            SolutionInstance current = this;
+            while ( temp > minTemp )
+            {
+                for( int i = 0; i < countPerTempDecrease; ++i )
+                {
+                    var n = current.RandomNeighbor;
+                    double deltaCost = current.Cost - n.Cost;
+                    if(deltaCost >= 0 || Math.Exp( deltaCost / current.Cost / temp ) > _space.Random.NextDouble() )
+                    {
+                        current = n;
+                    }
+                }
+                temp *= alpha;
+            }
+            return current;
+        }
+
         public IEnumerable<SolutionInstance> Neighbors
         {
             get
